@@ -148,7 +148,7 @@ public class UserService implements UserDetailsService {
     }
 
     public List<EmployeeResponse> getEmployees(String userId) {
-        List<User> userList = userRepository.getByAdminUserId(userId);
+        List<User> userList = userRepository.getByCreatedBy(userId);
         return userList.stream().map(item -> {
             Position position = positionRepository.getById(item.getPositionId()).orElse(null);
             EmployeeResponse resItem = item.toEmployeeResponse();

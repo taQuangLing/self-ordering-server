@@ -23,7 +23,7 @@ import java.util.ArrayList;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Branch extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(length = 50)

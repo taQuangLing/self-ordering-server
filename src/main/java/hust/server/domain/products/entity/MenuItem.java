@@ -17,7 +17,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class MenuItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "product_id")

@@ -27,7 +27,7 @@ import static hust.server.infrastructure.utilies.Utility.*;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Order extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(name = "table_number")

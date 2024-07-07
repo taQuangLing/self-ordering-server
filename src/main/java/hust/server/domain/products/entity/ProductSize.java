@@ -18,7 +18,7 @@ import static hust.server.infrastructure.utilies.Utility.formatCurrency;
 @NoArgsConstructor
 public class ProductSize {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "size")

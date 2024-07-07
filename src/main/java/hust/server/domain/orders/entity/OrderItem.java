@@ -24,7 +24,7 @@ import static hust.server.infrastructure.utilies.Utility.formatCurrency;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderItem extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @OneToOne
