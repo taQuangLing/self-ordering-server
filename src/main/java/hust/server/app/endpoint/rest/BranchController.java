@@ -49,4 +49,10 @@ public class BranchController {
         request.setId(id);
         return ResponseFactory.response(branchService.updateBranch(request));
     }
+
+    @PutMapping("/admin/v1/branches/{id}/qr")
+    public ResponseEntity<?> changeQrCode(@PathVariable Long id){
+        return ResponseFactory.response(branchService.changeQrCode(id));
+    }
+
 }

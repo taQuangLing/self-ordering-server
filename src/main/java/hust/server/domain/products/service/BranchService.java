@@ -25,6 +25,7 @@ import hust.server.domain.products.repository.MenuRepository;
 import hust.server.domain.products.repository.ProductRepository;
 import hust.server.infrastructure.enums.MessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class BranchService {
+    private @Value("${ui.url}") String uiUrl;
     @Autowired
     private BranchRepository branchRepository;
 
@@ -68,7 +70,7 @@ public class BranchService {
         //Set barcode type
         settings.setType(BarCodeType.QR_Code);
         //Set barcode data
-        String data = "https://localhost:8000/authenticate?code=" + code;
+        String data = uiUrl + "/authenticate?code=" + code;
         settings.setData(data);
         //Set barcode module width
         settings.setX(2);
@@ -222,5 +224,18 @@ public class BranchService {
             }
         }
         return MessageCode.SUCCESS;
+    }
+
+    public MessageCode changeQrCode(Long id) {
+        Branch branch = branchRepository.getById(id).orElse(null);
+        if (branch == null)throw new ApiException(MessageCode.ID_NOT_FOUND, "branchId = " + id);
+        String qrCode = generateQrCode(branch.getCode(), branch.getName());
+        branch.setCode(qrCode);
+        try {
+            branchRepository.save(branch);
+            return MessageCode.SUCCESS;
+        }catch (Exception e){
+            throw new ApiException(e, MessageCode.FAIL);
+        }
     }
 }
