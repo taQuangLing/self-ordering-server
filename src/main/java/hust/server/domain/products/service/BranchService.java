@@ -230,7 +230,7 @@ public class BranchService {
         Branch branch = branchRepository.getById(id).orElse(null);
         if (branch == null)throw new ApiException(MessageCode.ID_NOT_FOUND, "branchId = " + id);
         String qrCode = generateQrCode(branch.getCode(), branch.getName());
-        branch.setCode(qrCode);
+        branch.setQrcode(qrCode);
         try {
             branchRepository.save(branch);
             return MessageCode.SUCCESS;
