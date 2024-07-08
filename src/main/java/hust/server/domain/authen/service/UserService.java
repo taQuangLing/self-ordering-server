@@ -48,8 +48,8 @@ public class UserService implements UserDetailsService {
     @Autowired
     private BranchRepository branchRepository;
 
-    private final long GUEST_EXPIRATION = 2 * 30 * 24 * 60;
-    private final long CASHIER_EXPIRATION = 2 * 30 * 24 * 60;
+    private final long GUEST_EXPIRATION = 15;
+    private final long CASHIER_EXPIRATION = 24 * 60;
 
 
     @Override
