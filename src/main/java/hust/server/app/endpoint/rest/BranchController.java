@@ -1,5 +1,6 @@
 package hust.server.app.endpoint.rest;
 
+import hust.server.app.dto.response.Response;
 import hust.server.app.service.ResponseFactory;
 import hust.server.domain.products.dto.request.AdminBranchCreationRequest;
 import hust.server.domain.products.dto.request.AdminBranchUpdateRequest;
@@ -30,6 +31,11 @@ public class BranchController {
     public ResponseEntity<?> getBranchDetails(@RequestParam String userId,
                                               @PathVariable Long id){
         return ResponseFactory.response(branchService.getBranchesDetails(id, userId));
+    }
+
+    @GetMapping("/cashier/v1/branches/{id}")
+    public ResponseEntity<?> getBranchName(@PathVariable(name = "id") String employeeId){
+        return ResponseFactory.response(branchService.getBranchName(employeeId));
     }
 
     @PostMapping("/admin/v1/branches")

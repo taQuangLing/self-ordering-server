@@ -47,7 +47,9 @@ public class JwtTokenFilter extends BasicAuthenticationFilter {
             jwt = authorizationHeader.substring(7);
             if (jwtUtil.isTokenExpired(jwt)) throw new ApiException(MessageCode.TOKEN_ERROR);
             username = jwtUtil.extractUsername(jwt);
+            if (jwtUtil.isTokenExpired(jwt))throw new ApiException(MessageCode.TOKEN_EXPIRED);
         }
+
         if ((username != null || (jwt != null && jwtUtil.getClaimByRole(jwt).equals("GUEST"))) && SecurityContextHolder.getContext().getAuthentication() == null) {
             CustomUserDetails customUserDetails = new CustomUserDetails(
                     jwtUtil.getClaimByKey(jwt),

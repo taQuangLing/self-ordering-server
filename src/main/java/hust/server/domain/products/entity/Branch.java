@@ -7,17 +7,16 @@ import hust.server.domain.products.dto.response.AdminBranchResponse;
 import hust.server.infrastructure.utilies.Utility;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
 @Builder
-@Table(name = "branches")
+@javax.persistence.Table(name = "branches")
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -53,6 +52,13 @@ public class Branch extends BaseEntity {
 
     @Column
     private String code;
+
+    @OneToMany
+    @JoinColumn(name = "branch_id")
+    private List<Table> tableList;
+
+    @Column(name = "order_count")
+    private Long orderCount;
 
     public AdminBranchResponse toAdminBranchResponse() {
         return AdminBranchResponse.builder()
@@ -95,6 +101,7 @@ public class Branch extends BaseEntity {
                 .qrcode(qrcode)
                 .createdAt(Utility.toLocalDateTime(createdAt, ""))
                 .menuItemRes(new ArrayList<>())
+                .tableResponse(tableList.stream().filter(item -> item.getIsDeleted() == 0).map(Table::toTableResponse).collect(Collectors.toList()))
                 .build();
     }
 }

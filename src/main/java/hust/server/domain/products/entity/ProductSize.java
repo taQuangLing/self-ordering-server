@@ -13,7 +13,7 @@ import static hust.server.infrastructure.utilies.Utility.formatCurrency;
 @Data
 @Entity
 @Builder
-@Table(name = "product_size")
+@javax.persistence.Table(name = "product_size")
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductSize {

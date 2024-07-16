@@ -26,6 +26,7 @@ public enum MessageCode {
     TOKEN_VALIDATE(4010, "Token is validate", "Token hợp lệ"),
     USERNAME_NOTFOUND(4011, "User name not found", "Tài khoản không hợp lệ"),
     RESOURCES_AUTHORIZATION(4012, "Resources authorization", "You do not have access to the resource"),
+    BRANCH_CODE_IS_NULL(4013, "Branch code is null", "Giá trị code của chi nhánh không tồn tại"),
     ;
     private int code;
     private String message;

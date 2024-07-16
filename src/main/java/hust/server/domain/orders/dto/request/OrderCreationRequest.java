@@ -13,5 +13,5 @@ public class OrderCreationRequest {
     private Integer isOrderAtTable;
     private List<Long> itemCartList;
     private String userId;
-    private Integer tableNumber;
+    private Long tableId;
 }

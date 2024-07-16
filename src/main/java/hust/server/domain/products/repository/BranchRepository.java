@@ -26,4 +26,9 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
     List<Branch> getByCreatedByAndSort(String userId);
 
     Optional<Branch> getByIdAndCreatedBy(Long id, String userId);
+
+    @Query(value = "select branches.* from branches, users " +
+            "where users.id = :employeeId and " +
+            "users.branch_id = branches.id", nativeQuery = true)
+    Branch getByEmployeeId(String employeeId);
 }

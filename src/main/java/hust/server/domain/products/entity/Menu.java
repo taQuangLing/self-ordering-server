@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 @Entity
 @Builder
-@Table(name = "menu")
+@javax.persistence.Table(name = "menu")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Menu extends BaseEntity {

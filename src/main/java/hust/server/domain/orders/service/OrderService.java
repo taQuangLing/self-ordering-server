@@ -19,12 +19,16 @@ import hust.server.domain.orders.repository.OrderItemRepository;
 import hust.server.domain.orders.repository.OrderRepository;
 import hust.server.domain.products.entity.Branch;
 import hust.server.domain.products.entity.ProductSize;
+import hust.server.domain.products.entity.Table;
 import hust.server.domain.products.repository.BranchRepository;
 import hust.server.domain.products.repository.ProductRepository;
+import hust.server.domain.products.repository.TableRepository;
 import hust.server.infrastructure.enums.MessageCode;
+import hust.server.infrastructure.utilies.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -46,12 +50,18 @@ public class OrderService {
     @Autowired
     private BranchRepository branchRepository;
 
+    @Autowired
+    private TableRepository tableRepository;
+
+    @Transactional
     public MessageCode createOrder(OrderCreationRequest request) {
         List<OrderItem> orderItemList = new ArrayList<>();
         AtomicLong total = new AtomicLong();
 
         User user = userRepository.getById(request.getUserId()).orElse(null);
         if (user == null)throw new ApiException(MessageCode.ID_NOT_FOUND);
+
+        Branch branch = user.getBranch();
 
         request.getItemCartList().forEach(id -> {
             CartItem cartItem = cartItemRepository.getById(id).orElse(null);
@@ -66,23 +76,43 @@ public class OrderService {
             cartItemRepository.delete(cartItem);
         });
 
+        Table table = tableRepository.getById(request.getTableId()).orElse(null);
+        if (table == null){
+            table = new Table();
+            if (user.getIsGuest() == 1)table.setName("<none>");
+            else table.setName("Thu ngân");
+        }
+
+        // gen code
+        String code = Utility.concatPrefixWord(user.getBranch().getName());
+        code = code + Utility.padWithZeros(user.getBranch().getOrderCount().toString(), 8);
+
         Order order = new Order();
         order.setOrderItemList(orderItemList);
         order.setUserId(request.getUserId());
         order.setStatus(0);
         order.setIsOrderAtTable(request.getIsOrderAtTable());
         order.setPayments(request.getPayments());
-        order.setTableNumber(request.getTableNumber());
+        order.setTableName(table.getName());
         order.setBranchId(user.getBranch().getId());
         order.setTotal(total.getAcquire());
         order.setIsCustomerOrder(user.getIsGuest());
+        order.setCode(code);
 
         try{
             orderRepository.save(order);
+
+        }catch (Exception e){
+            throw new ApiException(e, MessageCode.FAIL);
+        }
+        try {
+            branch.setOrderCount(branch.getOrderCount() + 1);
+            branchRepository.save(branch);
             return MessageCode.SUCCESS;
         }catch (Exception e){
-            throw new ApiException(e, MessageCode.ERROR);
+            throw new ApiException(e, MessageCode.FAIL);
         }
+
     }
 
     private OrderItem convertToOrderItem(CartItem cartItem){
@@ -185,9 +215,11 @@ public class OrderService {
         if (order == null)throw new ApiException(MessageCode.ID_NOT_FOUND, "orderId = " + id);
         checkAuthori(order, userId);
         AdminOrderDetailsResponse response = order.toAdminOrderDetailResponse();
+
         Branch branch = branchRepository.getById(order.getBranchId()).orElse(null);
         if (branch == null)throw new ApiException(MessageCode.ID_NOT_FOUND, "branchId = " + order.getBranchId());
         response.setBranch(branch.getAddress());
+
         return response;
     }
 

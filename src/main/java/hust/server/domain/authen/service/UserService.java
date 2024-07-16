@@ -131,7 +131,7 @@ public class UserService implements UserDetailsService {
         AuthResponse response = new AuthResponse();
         Map<String, Object> payload = new HashMap<>();
         payload.put("branchId", branch.getId());
-        payload.put("tableNumber", tableNumber);
+        payload.put("tableId", tableNumber);
         response.setJwt(jwtTokenUntil.generateToken(user.toCustomUserDetails(), GUEST_EXPIRATION, payload));
         response.setRole("GUEST");
         return response;

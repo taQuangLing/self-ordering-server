@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @Data
 @Entity
 @Builder
-@Table(name = "categories")
+@javax.persistence.Table(name = "categories")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Category extends BaseEntity {

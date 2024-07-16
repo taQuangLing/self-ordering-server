@@ -15,4 +15,6 @@ public class AdminOrderDetailsResponse {
     private String datetime;
     private List<AdminOrderItemResponse> orderItem;
     private String note;
+    private String tableName;
+    private String code;
 }

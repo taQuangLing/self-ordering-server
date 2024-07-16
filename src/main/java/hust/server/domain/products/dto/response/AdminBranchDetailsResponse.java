@@ -20,4 +20,5 @@ public class AdminBranchDetailsResponse {
     private String code;
     private String qrcode;
     private List<AdminMenuItemResponse> menuItemRes;
+    private List<TableResponse> tableResponse;
 }

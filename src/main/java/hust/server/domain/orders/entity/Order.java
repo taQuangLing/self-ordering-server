@@ -30,8 +30,8 @@ public class Order extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name = "table_number")
-    Integer tableNumber;
+    @Column(name = "table_name")
+    String tableName;
 
     @Column(name = "token")
     String token;
@@ -87,6 +87,8 @@ public class Order extends BaseEntity {
     public GuestOrderResponse toGuestOrderResponse(){
         return GuestOrderResponse.builder()
                 .id(id)
+                .code(code)
+                .total(Utility.formatCurrency(total))
                 .orderAt(toLocalDateTime(createdAt, null))
                 .orderItemList(orderItemList.stream().map(OrderItem::toGuestOrderItemResponse).collect(Collectors.toList()))
                 .status(convertStatus())
@@ -118,6 +120,7 @@ public class Order extends BaseEntity {
                 .id(id)
                 .total(formatCurrency(total))
                 .isExpanded(isExpanded)
+                .tableName(tableName)
                 .build();
     }
     public AdminOrderResponse toAdminOrderResponse(){
@@ -140,6 +143,8 @@ public class Order extends BaseEntity {
                 .status(convertStatus())
                 .orderItem(orderItemList.stream().map(OrderItem::toAdminOrderItemResponse).collect(Collectors.toList()))
                 .note(note)
+                .tableName(tableName)
+                .code(code)
                 .build();
     }
 

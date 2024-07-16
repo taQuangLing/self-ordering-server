@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Builder
-@Table(name = "menu_item")
+@javax.persistence.Table(name = "menu_item")
 @AllArgsConstructor
 @NoArgsConstructor
 public class MenuItem {

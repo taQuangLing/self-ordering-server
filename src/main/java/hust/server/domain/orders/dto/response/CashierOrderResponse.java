@@ -17,4 +17,5 @@ public class CashierOrderResponse {
     private List<CashierOrderItemResponse> orderItemList;
     private String status; // 0: Chờ xác nhận, 1: Đang pha chế, 2: Đã xong, 3: Đã hủy
     private Boolean isExpanded;
+    private String tableName;
 }

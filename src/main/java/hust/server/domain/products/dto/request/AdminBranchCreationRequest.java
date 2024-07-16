@@ -28,6 +28,7 @@ public class AdminBranchCreationRequest {
                 .logo(logo)
                 .active(1)
                 .code(UUID.randomUUID().toString())
+                .orderCount(0L)
                 .build();
     }
 }

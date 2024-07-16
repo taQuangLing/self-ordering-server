@@ -129,10 +129,6 @@
 			<artifactId>jakarta.persistence-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.persistence</groupId>
-			<artifactId>jakarta.persistence-api</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>e-iceblue</groupId>
 			<artifactId>spire.barcode.free</artifactId>
 			<version>5.1.1</version>

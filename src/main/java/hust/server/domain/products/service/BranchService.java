@@ -11,18 +11,13 @@ import hust.server.domain.authen.repository.UserRepository;
 import hust.server.domain.products.dto.request.AdminBranchCreationRequest;
 import hust.server.domain.products.dto.request.AdminBranchUpdateRequest;
 import hust.server.domain.products.dto.request.AdminMenuItemRequest;
+import hust.server.domain.products.dto.request.TableRequest;
 import hust.server.domain.products.dto.response.AdminBranchDetailsResponse;
 import hust.server.domain.products.dto.response.AdminBranchFilterResponse;
 import hust.server.domain.products.dto.response.AdminBranchResponse;
 import hust.server.domain.products.dto.response.AdminMenuItemResponse;
-import hust.server.domain.products.entity.Branch;
-import hust.server.domain.products.entity.Menu;
-import hust.server.domain.products.entity.MenuItem;
-import hust.server.domain.products.entity.Product;
-import hust.server.domain.products.repository.BranchRepository;
-import hust.server.domain.products.repository.MenuItemRepository;
-import hust.server.domain.products.repository.MenuRepository;
-import hust.server.domain.products.repository.ProductRepository;
+import hust.server.domain.products.entity.*;
+import hust.server.domain.products.repository.*;
 import hust.server.infrastructure.enums.MessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +28,6 @@ import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,6 +51,10 @@ public class BranchService {
 
     @Autowired
     private MenuItemRepository menuItemRepository;
+
+    @Autowired
+    private TableRepository tableRepository;
+
     public Map<String, Object> upload(File file)  {
         try{
             return cloudinary.uploader().upload(file, Map.of());
@@ -65,13 +63,22 @@ public class BranchService {
         }
     }
 
-    public String generateQrCode(String code, String branchName) {
+    public String generateQrCode(String code, String branchName, Long tableId) {
+        if (code == null)throw new ApiException(MessageCode.BRANCH_CODE_IS_NULL);
+
         BarcodeSettings settings = new BarcodeSettings();
         //Set barcode type
         settings.setType(BarCodeType.QR_Code);
         //Set barcode data
-        String data = uiUrl + "/authenticate?code=" + code;
-        settings.setData(data);
+        StringBuilder data = new StringBuilder(uiUrl);
+        data.append("/authenticate?code=");
+        data.append(code);
+        if (tableId != null){
+            data.append("&tableId=");
+            data.append(tableId);
+        }
+
+        settings.setData(data.toString());
         //Set barcode module width
         settings.setX(2);
         //Set error correction level
@@ -130,7 +137,7 @@ public class BranchService {
 
     public MessageCode createBranch(AdminBranchCreationRequest request) throws IOException {
         Branch branch = request.toBranchEntity();
-        String url = generateQrCode(branch.getCode(), branch.getName());
+        String url = generateQrCode(branch.getCode(), branch.getName(), null);
         branch.setQrcode(url);
         try {
             branchRepository.save(branch);
@@ -197,7 +204,6 @@ public class BranchService {
     }
 
     @Transactional
-
     public MessageCode updateBranch(AdminBranchUpdateRequest request) {
         Branch branch = branchRepository.getByIdAndCreatedBy(request.getId(), request.getCreatedBy()).orElse(null);
         if (branch == null)throw new ApiException(MessageCode.ID_NOT_FOUND, "id = " + request.getId() + "; userId = " + request.getCreatedBy());
@@ -209,12 +215,48 @@ public class BranchService {
         branch.setLogo(request.getLogo());
         branch.setActive(request.getStatus());
 
+        // update table
+
+        List<Table> tableList = branch.getTableList();
+        for (Table table: tableList){
+            boolean isExist = request.getTableList().stream().anyMatch(item -> table.getId().equals(item.getId()));
+            if (!isExist){
+                table.setIsDeleted(1);
+                tableRepository.save(table);
+            }
+        }
+
+        for (TableRequest tableReq : request.getTableList()){
+            if (tableReq.getId() == null || tableReq.getId() == 0){
+                // create QR
+                Table table = new Table();
+                table.setName(tableReq.getName());
+                table.setIsDeleted(0);
+                tableRepository.save(table);
+                String qrCode = generateQrCode(branch.getCode(), branch.getName(), table.getId());
+                table.setQrcode(qrCode);
+                tableRepository.save(table);
+                branch.getTableList().add(table);
+            }else {
+                Table table = tableRepository.getById(tableReq.getId()).orElse(null);
+                if (table == null)throw new ApiException(MessageCode.ID_NOT_FOUND, "tableId = " + tableReq.getId());
+                if (!table.getName().equals(tableReq.getName()))table.setName(tableReq.getName());
+                try {
+                    tableRepository.save(table);
+                }catch (Exception e){
+                    throw new ApiException(e, MessageCode.FAIL);
+                }
+            }
+        }
+
+
         try {
             branchRepository.save(branch);
         }catch (Exception e){
             throw new ApiException(e, MessageCode.FAIL);
         }
 
+        // update menu
         for (AdminMenuItemRequest menuItemReq : request.getMenuItemRes()){
             Integer active = menuItemReq.getActive() ? 1 : 0;
             try {
@@ -223,13 +265,14 @@ public class BranchService {
                 throw new ApiException(e, MessageCode.FAIL);
             }
         }
+
         return MessageCode.SUCCESS;
     }
 
     public MessageCode changeQrCode(Long id) {
         Branch branch = branchRepository.getById(id).orElse(null);
         if (branch == null)throw new ApiException(MessageCode.ID_NOT_FOUND, "branchId = " + id);
-        String qrCode = generateQrCode(branch.getCode(), branch.getName());
+        String qrCode = generateQrCode(branch.getCode(), branch.getName(), null);
         branch.setQrcode(qrCode);
         try {
             branchRepository.save(branch);
@@ -237,5 +280,11 @@ public class BranchService {
         }catch (Exception e){
             throw new ApiException(e, MessageCode.FAIL);
         }
+    }
+
+    public String getBranchName(String employeeId) {
+        Branch branch = branchRepository.getByEmployeeId(employeeId);
+        if (branch == null)throw new ApiException(MessageCode.FAIL);
+        return branch.getName();
     }
 }

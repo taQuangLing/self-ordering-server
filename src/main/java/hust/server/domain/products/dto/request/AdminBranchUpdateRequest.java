@@ -19,4 +19,5 @@ public class AdminBranchUpdateRequest {
     private Integer status;
     private String logo;
     private List<AdminMenuItemRequest> menuItemRes;
+    private List<TableRequest> tableList;
 }

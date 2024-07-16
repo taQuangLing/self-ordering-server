@@ -48,8 +48,8 @@ public class AuthController {
     @GetMapping("/guest-token")
     public ResponseEntity<?> genGuestToken(
             @RequestParam String code,
-            @RequestParam(required = false) Integer tableNumber){
-        return ResponseFactory.response(userService.genGuestToken(code, tableNumber));
+            @RequestParam(required = false) Integer tableId){
+        return ResponseFactory.response(userService.genGuestToken(code, tableId));
     }
 
     @PutMapping("/check-token")

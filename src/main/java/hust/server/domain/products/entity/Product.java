@@ -19,7 +19,7 @@ import static hust.server.infrastructure.utilies.Utility.*;
 @Data
 @Entity
 @Builder
-@Table(name = "products")
+@javax.persistence.Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product extends BaseEntity {
